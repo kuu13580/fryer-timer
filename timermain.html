@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<head>
+    <title>厨房タイマー</title>
+    <audio id="sound-file" preload="auto" loop>
+        <source src="Clock-Alarm.mp3" type="audio/mp3">
+    </audio>
+    <style>
+        .timertext{
+            font-size:100px ;
+        }
+        button{
+            font-size:20px ;
+            width:90px;
+            height:50px;
+            font-weight:bold;
+        }
+        .bigbutton{
+            width:180px;
+            height:50px;
+            font-weight:bold;
+        }
+    </style>
+<!--ここからスクリプト記述欄-->
+<script type="text/javascript">
+document.addEventListener('keydown', function(event) {
+    if (event.key === "Escape") {
+        window.close();
+    }
+});
+new ActiveXObject('WSctipt.Shell').Run('C:\\Users\owner\Downloads\pause.exe'); 
+window.open('C:\\Users\owner\Downloads\pause.exe')
+let loop = [];
+function set2fig(num) {
+    // 桁数が1桁だったら先頭に0を加えて2桁に調整する
+    var ret;
+    if( num < 10 ) { ret = "0" + num; }
+    else { ret = num; }
+    return ret;
+}
+function refresh(tm_nb){
+    var dif = 0;
+    var nowDate = new Date();
+    dif = localStorage.getItem("timer"+tm_nb) - nowDate.getTime();
+    if (dif < 1000){localStorage.setItem("timer_status"+tm_nb,2);}
+    switch (localStorage.getItem("timer_status"+tm_nb)){
+        case "1":
+            secDif = Math.floor(dif / 1000);
+            document.getElementById("timer"+tm_nb).innerHTML = set2fig( Math.floor(secDif / 60)) + "：" + set2fig(Math.floor(secDif % 60));
+            break;
+        case "2": //鳴動
+            document.getElementById("timer"+tm_nb).innerHTML = "00：00";
+            document.getElementById( 'sound-file' ).play();
+            document.getElementById("timer"+tm_nb).style.backgroundColor="red";
+            document.getElementById("timer"+tm_nb).style.color="white";
+            clearInterval(loop[tm_nb][tm_nb]);
+            break;
+    }
+}
+function start(tm_nb,time){
+    //いったん初期化
+    var nowDate = new Date();
+    clearInterval(loop[tm_nb]);
+    document.getElementById( 'sound-file' ).pause();
+    document.getElementById("pausebtn"+tm_nb).innerHTML = "一時停止";
+    document.getElementById("pausebtn"+tm_nb).onclick = new Function("pause("+tm_nb+")");
+    document.getElementById("timer"+tm_nb).style.backgroundColor="white";
+    document.getElementById("timer"+tm_nb).style.color="black";
+    //
+    localStorage.setItem("timer_status"+tm_nb,1)
+    localStorage.setItem("timer"+tm_nb,nowDate.getTime()+time*1001);
+    var dif = 0;
+    var nowDate = new Date();
+    dif = localStorage.getItem("timer"+tm_nb) - nowDate.getTime();
+    secDif = Math.floor(dif / 1000);
+    document.getElementById("timer"+tm_nb).innerHTML = set2fig( Math.floor(secDif / 60)) + "：" + set2fig(Math.floor(secDif % 60));
+    loop[tm_nb] = setInterval(refresh,1000,tm_nb);
+}
+function stop(tm_nb){
+    document.getElementById("timer"+tm_nb).innerHTML = "00：00";
+    document.getElementById( 'sound-file' ).pause();
+    document.getElementById("pausebtn"+tm_nb).innerHTML = "一時停止";
+    document.getElementById("pausebtn"+tm_nb).onclick = new Function("pause("+tm_nb+")");
+    document.getElementById("timer"+tm_nb).style.color="black";
+    for (let i = 1; i < 9; i++){document.getElementById("timeselect"+tm_nb+"_"+i).style.backgroundColor=null;}
+    document.getElementById("timer"+tm_nb).style.backgroundColor="white";
+    document.getElementById("timer"+tm_nb).style.color="black";
+    clearInterval(loop[tm_nb]);
+}
+function pause(tm_nb){
+    var nowDate = new Date();
+    clearInterval(loop[tm_nb]);
+    newtime = localStorage.getItem("timer"+tm_nb) - nowDate.getTime();
+    document.getElementById("pausebtn"+tm_nb).innerHTML = "  再開  ";
+    document.getElementById("pausebtn"+tm_nb).onclick = new Function("start("+tm_nb+","+(Math.floor(newtime/1000)+1)+")");
+}
+function btnstyle(tm_nb,id){
+    for (let i = 1; i < 9; i++){document.getElementById("timeselect"+tm_nb+"_"+i).style.backgroundColor=null;}
+    document.getElementById("timeselect"+tm_nb+"_"+id).style.backgroundColor = "yellow";
+}
+
+
+</script>
+</head>
+
+
+
+<body>
+Ver. 2.7
+<table border="4" align="center" cellspacing="10">
+<tr>
+<td>
+<table align="center" style="text-align: center">
+    <tr><td colspan="4" class="timertext" id="timer1">00：00</td></tr>
+    <tr>
+        <td colspan="2"><button type="button" class="bigbutton" id="pausebtn1" onclick="pause(1)">一時停止</button></td>
+        <td colspan="2"><button type="button" class="bigbutton" id="stopbtn1" onclick="stop(1)">  停止  </button></td>
+    </tr>
+    <tr>
+        <td><button type="button" class="timeselect" id="timeselect1_1" onclick="start(1,10);btnstyle(1,1)">10秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_2" onclick="start(1,30);btnstyle(1,2)">30秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_3" onclick="start(1,60);btnstyle(1,3)">１分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_4" onclick="start(1,120);btnstyle(1,4)">２分</button></td>
+    </tr>
+    <tr>
+        <td><button type="button" class="timeselect" id="timeselect1_5" onclick="start(1,150);btnstyle(1,5)">2分30秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_6" onclick="start(1,180);btnstyle(1,6)">３分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_7" onclick="start(1,240);btnstyle(1,7)">４分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect1_8" onclick="start(1,300);btnstyle(1,8)">５分</button></td>
+    </tr>
+</table>
+</td>
+<td>
+<table align="center" style="text-align: center">
+    <tr><td colspan="4" class="timertext" id="timer2">00：00</td></tr>
+    <tr>
+        <td colspan="2"><button type="button" class="bigbutton" id="pausebtn2" onclick="pause(2)">一時停止</button></td>
+        <td colspan="2"><button type="button" class="bigbutton" id="stopbtn2" onclick="stop(2)">  停止  </button></td>
+    </tr>
+    <tr>
+        <td><button type="button" class="timeselect" id="timeselect2_1" onclick="start(2,10);btnstyle(2,1)">10秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_2" onclick="start(2,30);btnstyle(2,2)">30秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_3" onclick="start(2,60);btnstyle(2,3)">１分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_4" onclick="start(2,120);btnstyle(2,4)">２分</button></td>
+    </tr>
+    <tr>
+        <td><button type="button" class="timeselect" id="timeselect2_5" onclick="start(2,150);btnstyle(2,5)">2分30秒</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_6" onclick="start(2,180);btnstyle(2,6)">３分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_7" onclick="start(2,240);btnstyle(2,7)">４分</button></td>
+        <td><button type="button" class="timeselect" id="timeselect2_8" onclick="start(2,300);btnstyle(2,8)">５分</button></td>
+    </tr>
+</table>
+</td>
+<td>
+    <table align="center" style="text-align: center">
+        <tr><td colspan="4" class="timertext" id="timer3">00：00</td></tr>
+        <tr>
+            <td colspan="2"><button type="button" class="bigbutton" id="pausebtn3" onclick="pause(3)">一時停止</button></td>
+            <td colspan="2"><button type="button" class="bigbutton" id="stopbtn3" onclick="stop(3)">  停止  </button></td>
+        </tr>
+        <tr>
+            <td><button type="button" class="timeselect" id="timeselect3_1" onclick="start(3,10);btnstyle(3,1)">10秒</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_2" onclick="start(3,30);btnstyle(3,2)">30秒</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_3" onclick="start(3,60);btnstyle(3,3)">１分</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_4" onclick="start(3,120);btnstyle(3,4)">２分</button></td>
+        </tr>
+        <tr>
+            <td><button type="button" class="timeselect" id="timeselect3_5" onclick="start(3,150);btnstyle(3,5)">2分30秒</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_6" onclick="start(3,180);btnstyle(3,6)">３分</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_7" onclick="start(3,240);btnstyle(3,7)">４分</button></td>
+            <td><button type="button" class="timeselect" id="timeselect3_8" onclick="start(3,300);btnstyle(3,8)">５分</button></td>
+        </tr>
+    </table>
+</td>
+</tr>
+</table>
+</body>
+</html>
+
+<!--
+timer_status ⇒ 0(待機中)1(作動中)2(鳴動中)
+<button type="button" id=" " onclick="start(,)"></button>
+-->
